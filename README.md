@@ -11,7 +11,7 @@
 ## Usage
 
 ```javascript
-import { sign } from 'https://deno.land/x/npm_ethjs_signer@0.1.1/mod.js';
+import { sign } from 'https://deno.land/x/npm_ethjs_signer@0.1.2/mod.js';
 
 const address = '0x0F6af8F8D7AAD198a7607C96fb74Ffa02C5eD86B';
 const privateKey = '0xecbcd9838f7f2afa6e809df8d7cdae69aa5dfc14d563ee98e97effd3f6a652f2';

@@ -4,12 +4,12 @@ import {
 } from "./mod.js";
 import {
   BN,
-  Buffer as BufferModule,
   ethjs_account,
-  testing,
 } from "./deps.js";
-
-const { Buffer } = BufferModule;
+import {
+  assertEquals,
+  assertThrows,
+} from "./testing_deps.js";
 
 const {
   generate,
@@ -49,7 +49,7 @@ Deno.test({
       signedTx[8],
     );
     const address = publicToAddress(publicKey);
-    testing.assertEquals(address, testAccount.address);
+    assertEquals(address, testAccount.address);
   },
 });
 
@@ -68,7 +68,7 @@ Deno.test({
       data: "0x",
     };
     const signedTx = sign(rawTx, testAccount.privateKey, true);
-    const signedTxBuffer = new Buffer(
+    const signedTxBuffer = Buffer.from(
       stripHexPrefix(sign(rawTx, testAccount.privateKey)),
       "hex",
     );
@@ -79,7 +79,7 @@ Deno.test({
       signedTx[8],
     );
     const address = publicToAddress(publicKey);
-    testing.assertEquals(address, testAccount.address);
+    assertEquals(address, testAccount.address);
   },
 });
 
@@ -90,7 +90,7 @@ const account = generate(
 Deno.test({
   name: "sign should work with gas shim",
   fn() {
-    testing.assertEquals(
+    assertEquals(
       sign({ to: account.address, gas: 3000000 }, account.privateKey),
       sign({ to: account.address, gasLimit: 3000000 }, account.privateKey),
     );
@@ -100,11 +100,11 @@ Deno.test({
 Deno.test({
   name: "sign should sign a valid tx",
   fn() {
-    testing.assertEquals(
+    assertEquals(
       typeof sign({ to: account.address }, account.privateKey),
       "string",
     );
-    testing.assertEquals(
+    assertEquals(
       typeof sign({ to: account.address }, account.privateKey, true),
       "object",
     );
@@ -114,9 +114,9 @@ Deno.test({
 Deno.test({
   name: "sign should throw on invalid arguments",
   fn() {
-    testing.assertThrows(() => sign(""), Error);
-    testing.assertThrows(() => sign({}, ""), Error);
-    testing.assertThrows(
+    assertThrows(() => sign(""), Error);
+    assertThrows(() => sign({}, ""), Error);
+    assertThrows(
       () =>
         sign(
           {
@@ -128,11 +128,11 @@ Deno.test({
         ),
       Error,
     );
-    testing.assertThrows(() => sign({ to: "0x00" }, account.privateKey), Error);
-    testing.assertThrows(() => sign({}, "0xfsd98"), Error);
-    testing.assertThrows(() => sign({}, "0xkjdsfkjfsdkjs"), Error);
-    testing.assertThrows(() => sign({}, 234879243), Error);
-    testing.assertThrows(() => sign({}, null), Error);
-    testing.assertThrows(() => sign(null, 243249), Error);
+    assertThrows(() => sign({ to: "0x00" }, account.privateKey), Error);
+    assertThrows(() => sign({}, "0xfsd98"), Error);
+    assertThrows(() => sign({}, "0xkjdsfkjfsdkjs"), Error);
+    assertThrows(() => sign({}, 234879243), Error);
+    assertThrows(() => sign({}, null), Error);
+    assertThrows(() => sign(null, 243249), Error);
   },
 });

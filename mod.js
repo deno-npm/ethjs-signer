@@ -1,12 +1,10 @@
 import {
-  Buffer as BufferModule,
   elliptic,
   jssha3,
   numberToBN,
   rlp,
 } from "./deps.js";
 
-const { Buffer } = BufferModule;
 Buffer._isBuffer = true;
 const keccak256 = jssha3.keccak_256;
 const secp256k1 = new (elliptic.ec)("secp256k1");
@@ -34,7 +32,7 @@ function padToEven(str) {
 }
 
 function bnToBuffer(bn) {
-  return stripZeros(new Buffer(padToEven(bn.toString(16)), "hex"));
+  return stripZeros(Buffer.from(padToEven(bn.toString(16)), "hex"));
 }
 
 const transactionFields = [
@@ -59,7 +57,7 @@ const transactionFields = [
 
 function recover(rawTx, v, r, s) {
   const rawTransaction = typeof (rawTx) === "string"
-    ? new Buffer(stripHexPrefix(rawTx), "hex")
+    ? Buffer.from(stripHexPrefix(rawTx), "hex")
     : rawTx;
   const signedTransaction = rlp.decode(rawTransaction);
   const raw = [];
@@ -69,11 +67,11 @@ function recover(rawTx, v, r, s) {
   });
 
   const publicKey = secp256k1.recoverPubKey(
-    (new Buffer(keccak256(rlp.encode(raw)), "hex")),
+    (Buffer.from(keccak256(rlp.encode(raw)), "hex")),
     { r, s },
     v - 27,
   );
-  return (new Buffer(publicKey.encode("hex", false), "hex")).slice(1);
+  return (Buffer.from(publicKey.encode("hex", false), "hex")).slice(1);
 }
 
 /**
@@ -104,7 +102,7 @@ function sign(transaction, privateKey, toObject) {
   const raw = [];
 
   transactionFields.forEach((fieldInfo) => {
-    var value = new Buffer(0); // eslint-disable-line
+    var value = Buffer.from(0); // eslint-disable-line
 
     // shim for field name gas
     const txKey = (fieldInfo.name === "gasLimit" && transaction.gas)
@@ -115,7 +113,7 @@ function sign(transaction, privateKey, toObject) {
       if (fieldInfo.number === true) {
         value = bnToBuffer(numberToBN(transaction[txKey]));
       } else {
-        value = new Buffer(
+        value = Buffer.from(
           padToEven(stripHexPrefix(transaction[txKey])),
           "hex",
         );
@@ -146,11 +144,11 @@ function sign(transaction, privateKey, toObject) {
 
   // private key is not stored in memory
   const signature = secp256k1.keyFromPrivate(
-    new Buffer(privateKey.slice(2), "hex"),
+    Buffer.from(privateKey.slice(2), "hex"),
   )
-    .sign((new Buffer(keccak256(rlp.encode(raw)), "hex")), { canonical: true });
+    .sign((Buffer.from(keccak256(rlp.encode(raw)), "hex")), { canonical: true });
 
-  raw.push(new Buffer([27 + signature.recoveryParam]));
+  raw.push(Buffer.from([27 + signature.recoveryParam]));
   raw.push(bnToBuffer(signature.r));
   raw.push(bnToBuffer(signature.s));
 
